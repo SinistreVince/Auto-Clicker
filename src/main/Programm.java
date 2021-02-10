@@ -1,8 +1,12 @@
 package main;
 
 import java.awt.Color;
+import java.awt.EventQueue;
+import java.io.IOException;
 
 import javax.swing.SwingUtilities;
+
+import main.ChoiceWindow.YesOrNoWindow;
 
 public class Programm {
 
@@ -10,22 +14,19 @@ public class Programm {
 	public static Console console;
 	public static byte setupProgress;
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		
-		SwingUtilities.invokeLater(new Runnable() {
+		console = new Console();
+		Commands.printProduct(false);
+		Commands.println("Enter 'help' for the command list.", false);
+		
+		while(true) {
 			
-			@Override
-			public void run() {
-				
-				console = new Console();
-				Commands.printProduct(false);
-				Commands.println("Enter 'help' for the command list.", false);
-				console.BackgroundTask();
-			}
-		});
+			console.BackgroundTask();
+		} 
 	}
 	
-	public static void doCommand(String command) {
+	public static void doCommand(String command) throws IOException {
 		
 		Commands.printProduct(true);
 		Commands.println(command, false);
@@ -33,7 +34,7 @@ public class Programm {
 		String[] s = command.split(" ");
 		
 		if(mode != Mode.Setup) {
-			switch (s[0]) {
+			switch (s[0].toLowerCase()) {
 				case "help":
 					Commands.Help();
 					break;
@@ -46,12 +47,16 @@ public class Programm {
 				case "stop":
 					Commands.Stop();
 					break;
+				case "save":
+					Commands.PreSave();
+					break;
+				case "load":
+					Commands.Load();
+					break;
 				default:
 					Commands.println("Unkown Command", false, Color.RED);
 					break;
 			}
 		}
 	}
-	
-	
 }

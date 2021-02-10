@@ -1,23 +1,23 @@
 package main;
 
 import java.awt.Color;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
+import javax.swing.JFileChooser;
+import javax.swing.JPanel;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 
-public class Commands {
+import main.ChoiceWindow.OverwriteFile;
+import main.ChoiceWindow.YesOrNoWindow;
 
-	public static void scrollTop( ) {
-		
-		Programm.console.console.setCaretPosition(0);
-	}
-	
-	public static void scrollButtom() {
-		
-		Programm.console.console.setCaretPosition(Programm.console.console.getDocument().getLength());
-	}
+public class Commands {
 	
 	public static void print(String s, boolean trace) {
 		
@@ -81,7 +81,7 @@ public class Commands {
 			
 			clear();
 		}
-		print("Auto Klicker ", false, Color.GREEN); print("v0.1-alpha ", false); println("© 2021 Sinistre_Vince", false, new Color(170, 170, 170));
+		print("Auto Klicker ", false, Color.ORANGE); print("v0.2-alpha ", false); println("© 2021 Sinistre_Vince", false, new Color(170, 170, 170));
 		printEmptyln();
 		println(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss.SS")), false);
 		printEmptyln();
@@ -95,10 +95,12 @@ public class Commands {
 	
 	public static void Help() {
 		
-		print("help ", false); println("~ show all commands", false, Color.GRAY);
-		print("setup ", false); println("~ setup the AutoClick Configuration", false, Color.GRAY);
-		print("run ", false); println("~ start Auto Clicker", false, Color.GRAY);
-		print("stop ", false); println("~ stop Auto Clicker", false, Color.GRAY);
+		print("help ", false); println("~ show all commands", false, Color.LIGHT_GRAY);
+		print("setup ", false); println("~ setup the AutoClick Configuration", false, Color.LIGHT_GRAY);
+		print("run ", false); println("~ start Auto Clicker", false, Color.LIGHT_GRAY);
+		print("stop ", false); println("~ stop Auto Clicker", false, Color.LIGHT_GRAY);
+		print("save ", false); println("~ saving current setup", false, Color.LIGHT_GRAY);
+		print("load ", false); println("~ load a setup from a file", false, Color.LIGHT_GRAY);
 	}
 	
 	public static void SetupFirst() {
@@ -152,6 +154,73 @@ public class Commands {
 		else {
 			
 			println("Can't stop Auto Clicker. \nReason: Auto Clicker has not started.", false, Color.RED);
+		}
+	}
+	
+	public static void PreSave() throws IOException {
+		
+		if(!Programm.console.clicker.isSetupped) {
+			
+			print("You haven't a Setup to save!", false, Color.RED);
+			return;
+		}
+		
+		if(Programm.console.fileChooser.showSaveDialog(Programm.console.console) == JFileChooser.APPROVE_OPTION) {
+			
+			
+			File file = Programm.console.fileChooser.getSelectedFile();
+			String filename = file.toString();
+			
+			if(!filename.endsWith(".datsetup")) {
+				
+				filename += ".datsetup";
+				file = new File(filename);
+			}
+			if(file.exists()) {
+				
+				new OverwriteFile("Overwrite File", "Would you overwrite the file?", file);
+				return;
+			}
+			PostSave(file);
+		}
+		else {
+			
+			print("Save progress was canceled.", false, Color.RED);
+		}
+	}
+	
+	public static void PostSave(File savefile) throws IOException {
+		
+		FileWriter writer = new FileWriter(savefile);
+		writer.write(Programm.console.clicker.simulatedButtom);
+		writer.write(Programm.console.clicker.triggerButtom);
+		writer.write(Programm.console.clicker.clickAmount);
+		writer.close();
+		print("Successfully saved.", false, Color.GREEN);
+	}
+	
+	public static void Load() throws IOException  {
+		
+		if(Programm.console.fileChooser.showOpenDialog(Programm.console.console) == JFileChooser.APPROVE_OPTION) {
+			
+			File file = Programm.console.fileChooser.getSelectedFile();
+			
+			if(file.toString().endsWith(".datsetup")) {
+				
+				FileReader reader = new FileReader(file);
+				Programm.console.clicker.simulatedButtom = reader.read();
+				Programm.console.clicker.triggerButtom = reader.read();
+				Programm.console.clicker.clickAmount = reader.read();
+				reader.close();
+				
+				Programm.console.clicker.isSetupped = true;
+				
+				print("Sucessfully loaded.", false, Color.GREEN);
+			}
+			else {
+				
+				print("Data format is not supported!", false, Color.RED);
+			}
 		}
 	}
 }

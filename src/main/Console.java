@@ -4,30 +4,34 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.JWindow;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.StyledDocument;
 
 import main.ConsoleListeners.Action;
 
-public class Console {
+public class Console extends JFrame {
 
-	public JFrame frame;
 	public JTextPane console;
 	public JTextField input;
 	public JScrollPane scrollpane;
+	public JFileChooser fileChooser;
 	
 	public StyledDocument document;
 	public AutoClicker clicker;
 	
+	FileNameExtensionFilter filter;
 	ConsoleListeners listener;
-	boolean trace = false;
 	
 	public Console() {
 		
@@ -35,16 +39,15 @@ public class Console {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} 
 		catch (Exception e) {
-				
+			
 			e.printStackTrace();
-		} 
+		}
 		
 		listener = new ConsoleListeners();
 		clicker = new AutoClicker();
 		
-		frame = new JFrame();
-		frame.setTitle("Auto Klicker");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setTitle("Auto Clicker");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		console = new JTextPane();
 		console.setEditable(false);
@@ -68,48 +71,44 @@ public class Console {
 		scrollpane.setOpaque(false);
 		scrollpane.getViewport().setOpaque(false);
 		
-		frame.add(input, BorderLayout.SOUTH);
-		frame.add(scrollpane, BorderLayout.CENTER);
-		frame.setSize(400, 450);
-		frame.setLocationRelativeTo(null);
-		frame.setResizable(false);
-		frame.getContentPane().setBackground(Color.DARK_GRAY);
-		frame.setVisible(true);
+		filter = new FileNameExtensionFilter("*.datsetup (Setup Data)", "datsetup");
+		
+		fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Auto Klicker");
+		fileChooser.addChoosableFileFilter(filter);
+		fileChooser.setFileFilter(filter);
+		
+		add(input, BorderLayout.SOUTH);
+		add(scrollpane, BorderLayout.CENTER);
+		setSize(400, 450);
+		setLocationRelativeTo(null);
+		setResizable(false);
+		getContentPane().setBackground(Color.DARK_GRAY);
+		setVisible(true);
 	}
 	
-	public void BackgroundTask() {
+	public void BackgroundTask() throws InterruptedException {
 		
-		SwingWorker<Object, Object> worker = new SwingWorker<Object, Object>() {
-
-			@Override
-			protected Object doInBackground() throws Exception {
-				
-				while(true) {
-					switch (Programm.mode) {
-						case Setup:
-							if(Programm.setupProgress == 1 && clicker.simulatedButtom != -1) {
-								Commands.SetupSecond();
-							}
-							if(Programm.setupProgress == 2 && clicker.triggerButtom != -1) {
-								Commands.SetupThird();
-							}
-							Thread.sleep(1000/20);
-							break;
-						case Idle:
-							Thread.sleep(1000/20);
-							break;
-						case Run:
-							clicker.autoMouseClick(clicker.simulatedButtom);
-							Thread.sleep(1000/clicker.clickAmount);
-							break;
-						default:
-							Thread.sleep(1000);
-							break;
-					}
+		switch (Programm.mode) {
+			case Setup:
+				if(Programm.setupProgress == 1 && clicker.simulatedButtom != -1) {
+					Commands.SetupSecond();
 				}
-			}
-		};
-		
-		worker.execute();
+				if(Programm.setupProgress == 2 && clicker.triggerButtom != -1) {
+					Commands.SetupThird();
+				}
+				Thread.sleep(1000/20);
+				break;
+			case Idle:
+				Thread.sleep(1000/20);
+				break;
+			case Run:
+				clicker.autoMouseClick(clicker.simulatedButtom);
+				Thread.sleep(1000/clicker.clickAmount);
+				break;
+			default:
+				Thread.sleep(1000);
+				break;
+		}
 	}
 }

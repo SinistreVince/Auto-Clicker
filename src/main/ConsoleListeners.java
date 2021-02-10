@@ -7,6 +7,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 
 public class ConsoleListeners {
 
@@ -109,8 +110,13 @@ public class ConsoleListeners {
 				
 				if(text.length() > 1) {
 					
-					Programm.doCommand(text);
-					Commands.scrollButtom();
+					try {
+						
+						Programm.doCommand(text);
+					} catch (IOException e1) {
+						
+						e1.printStackTrace();
+					}
 					Commands.clearInputCommand();
 				}
 			}
