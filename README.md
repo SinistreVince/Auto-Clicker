@@ -11,3 +11,9 @@
 
 - small improvement in RAM usage
 - other minor changes
+
+# Planned Features
+
+- Multiple Auto Clicker tasks
+- Multi Threading for the tasks
+- Auto Clicker Support for keyboard
